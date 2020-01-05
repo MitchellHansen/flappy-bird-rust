@@ -1,0 +1,42 @@
+(
+    texture_width: 512,
+    texture_height: 512,
+    sprites: [
+        ( // Daytime background
+            x: 0,
+            y: 0,
+            width: 144,
+            height: 256,
+        ),
+        ( // Nighttime background
+            x: 146,
+            y: 0,
+            width: 144,
+            height: 256,
+        ),
+        ( // Down Pipe
+            x: 56,
+            y: 323,
+            width: 26,
+            height: 160,
+        ),
+        ( // Up Pipe
+            x: 84,
+            y: 323,
+            width: 26,
+            height: 160,
+        ),
+        ( // Ground
+            x: 292,
+            y: 0,
+            width: 168,
+            height: 56,
+        ),
+        ( // Floppy
+            x: 3,
+            y: 490,
+            width: 17,
+            height: 13,
+        )
+    ]
+)
