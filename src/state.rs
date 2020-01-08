@@ -38,8 +38,6 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
         /// function sets size of camera window
         init_camera(world, &dimensions);
 
-
-
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
         let mut dispatcher_builder = DispatcherBuilder::new();
         dispatcher_builder.add(ScrollScrollables, "scroll", &[]);
@@ -53,6 +51,7 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
 
         // Load our sprites and display them
         let sprites = load_sprites(world);
+        world.insert(sprites.clone());
         init_sprites(world, &sprites, &dimensions);
 
     }
@@ -72,7 +71,7 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
             if is_key_down(&event, VirtualKeyCode::P) {
                 // So I need to set the scrolling and gravity systems to pause
 
-                return Trans::Push(Box::new(PausedState));
+                return Trans::Push(Box::new(PausedState{ sprite: None }));
             }
         }
 
@@ -132,18 +131,18 @@ fn load_sprites(world: &mut World) -> HashMap<String, SpriteRender> {
     };
 
     let sprite_map = vec![
-        (0, "day-background".to_string()),
-        (1, "night-background".to_string()),
-        (2, "down-pipe".to_string()),
-        (3, "up-pipe".to_string()),
-        (4, "ground".to_string()),
-        (5, "floppy".to_string()),
+        ("day-background".to_string(), 0),
+        ("night-background".to_string(), 1),
+        ("down-pipe".to_string(), 2),
+        ("up-pipe".to_string(), 3),
+        ("ground".to_string(), 4),
+        ("floppy".to_string(), 5),
     ];
 
     sprite_map.iter()
-        .map(|i| (i.1.clone(), SpriteRender {
+        .map(|i| (i.0.clone(), SpriteRender {
             sprite_sheet: sheet_handle.clone(),
-            sprite_number: i.0,
+            sprite_number: i.1,
         }))
         .collect()
 }
@@ -204,7 +203,6 @@ fn init_sprites(world: &mut World, sprites: &HashMap<String, SpriteRender>, dime
     let birb_sprite = sprites.get("floppy").unwrap();
     transform.set_translation_xyz(dimensions.width()/2.0, dimensions.height()/2.0, 0.2);
 
-
     world
         .create_entity()
         .with(birb_sprite.clone()) // Sprite Render
@@ -218,18 +216,35 @@ fn init_sprites(world: &mut World, sprites: &HashMap<String, SpriteRender>, dime
 
 }
 
+#[derive(Default)]
+pub struct PausedState {
+    sprite: Option<Entity>,
+}
 
-pub struct PausedState;
 impl SimpleState for PausedState {
 
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
+
+        let sprite = world.try_fetch::<HashMap<String, SpriteRender>>().unwrap().get("up-pipe").unwrap().clone();
+
+       // let sprite = resource.get("up-pipe").unwrap().clone();
+        let mut transform = Transform::default();
+        transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
+        transform.set_translation_xyz(500.0/2.0, 500.0/2.0, 0.1);
+
+        self.sprite = Some(world
+            .create_entity()
+            .with(sprite.clone()) // Sprite Render
+            .with(transform.clone())
+            .build());
     }
 
     fn handle_event(
         &mut self,
-        mut _data: StateData<'_, GameData<'_, '_>>,
+        mut data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
 
@@ -237,6 +252,9 @@ impl SimpleState for PausedState {
             // Check if the window should be closed
             if is_key_down(&event, VirtualKeyCode::Space) {
 
+                let world = data.world;
+                world.delete_entity(self.sprite.unwrap());
+                self.sprite = None;
                 return Trans::Pop;
             }
         }
