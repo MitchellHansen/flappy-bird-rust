@@ -6,16 +6,21 @@ use amethyst::{
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     window::ScreenDimensions,
-    ecs::prelude::{Component, DenseVecStorage, Entity},
+    ecs::prelude::{Dispatcher, DispatcherBuilder, Component, DenseVecStorage, Entity},
 };
 
 use log::info;
 use crate::components::*;
 use std::collections::HashMap;
-use crate::systems::BirbGravity;
+use crate::systems::{BirbGravity, ScrollScrollables};
 
-pub struct MyState;
-impl SimpleState for MyState {
+#[derive(Default)]
+pub struct PlayState<'a, 'b> {
+    /// The `State` specific `Dispatcher`, containing `System`s only relevant for this `State`.
+    dispatcher: Option<Dispatcher<'a, 'b>>,
+}
+
+impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
 
     // On start will run when this state is initialized. For more
     // state lifecycle hooks, see:
@@ -32,6 +37,19 @@ impl SimpleState for MyState {
         // Place the camera
         /// function sets size of camera window
         init_camera(world, &dimensions);
+
+
+
+        // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
+        let mut dispatcher_builder = DispatcherBuilder::new();
+        dispatcher_builder.add(ScrollScrollables, "scroll", &[]);
+        dispatcher_builder.add(BirbGravity { fired: false }, "gravity", &[]);
+
+        // Build and setup the `Dispatcher`.
+        let mut dispatcher = dispatcher_builder.build();
+        dispatcher.setup(world);
+
+        self.dispatcher = Some(dispatcher);
 
         // Load our sprites and display them
         let sprites = load_sprites(world);
@@ -52,6 +70,8 @@ impl SimpleState for MyState {
             }
 
             if is_key_down(&event, VirtualKeyCode::P) {
+                // So I need to set the scrolling and gravity systems to pause
+
                 return Trans::Push(Box::new(PausedState));
             }
         }
@@ -61,6 +81,11 @@ impl SimpleState for MyState {
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+
+        if let Some(dispatcher) = self.dispatcher.as_mut() {
+            dispatcher.dispatch(&data.world);
+        }
+
         Trans::None
     }
 }
@@ -200,8 +225,6 @@ impl SimpleState for PausedState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
-
-        let storage = world.read_storage::<BirbGravity>();
     }
 
     fn handle_event(
@@ -213,6 +236,7 @@ impl SimpleState for PausedState {
         if let StateEvent::Window(event) = &event {
             // Check if the window should be closed
             if is_key_down(&event, VirtualKeyCode::Space) {
+
                 return Trans::Pop;
             }
         }

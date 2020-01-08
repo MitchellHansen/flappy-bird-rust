@@ -6,7 +6,7 @@ use amethyst::{
     ecs::prelude::{},
     ecs::prelude::{
         Component, DenseVecStorage, Entity, Join, Read,
-        ReadStorage, System, SystemData, WriteStorage
+        ReadStorage, System, SystemData, WriteStorage, Write
     },
     input::{InputHandler, StringBindings},
 };
@@ -15,6 +15,14 @@ use log::info;
 use crate::components::*;
 
 pub struct ScrollScrollables;
+
+/*
+Pausable systems
+https://book.amethyst.rs/stable/controlling_system_execution/pausable_systems.html
+
+
+
+*/
 
 // This system iterates all the objects with transform (and falling object) component
 impl<'a> System<'a> for ScrollScrollables {
@@ -51,6 +59,8 @@ impl<'a> System<'a> for BirbGravity {
 
     fn run(&mut self, (mut transforms, mut scrolling, time, input): Self::SystemData) {
         for (mut transform, mut object) in (&mut transforms, &mut scrolling).join() {
+
+            //match game.current_state
 
             if input.action_is_down("flap").expect("No action") {
                 object.vertical_speed = 600.0;

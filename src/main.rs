@@ -25,7 +25,7 @@ use std::str::FromStr;
 
 fn main() -> amethyst::Result<()> {
 
-    //amethyst::start_logger(Default::default());
+    amethyst::start_logger(Default::default());
 
     // Gets the root directory of the application
     let mut app_root = PathBuf::from_str("/home/mrh/source/flappy-bird-rust/")?;
@@ -42,8 +42,7 @@ fn main() -> amethyst::Result<()> {
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
-        .with(ScrollScrollables, "scroll", &[])
-        .with(BirbGravity{ fired: false }, "gravity", &["input_system"])
+       // .with(System, "system", &["required_things"])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -54,7 +53,7 @@ fn main() -> amethyst::Result<()> {
         )?;
 
     // Creates the app with the startup state and bound game data
-    let mut game = Application::new(resources, state::MyState, game_data)?;
+    let mut game = Application::new(resources, state::PlayState::default(), game_data)?;
     game.run();
 
     Ok(())
