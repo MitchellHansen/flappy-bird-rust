@@ -12,9 +12,9 @@ use amethyst::{
 use log::info;
 use crate::components::*;
 use std::collections::HashMap;
+use crate::systems::BirbGravity;
 
 pub struct MyState;
-
 impl SimpleState for MyState {
 
     // On start will run when this state is initialized. For more
@@ -36,6 +36,7 @@ impl SimpleState for MyState {
         // Load our sprites and display them
         let sprites = load_sprites(world);
         init_sprites(world, &sprites, &dimensions);
+
     }
 
     fn handle_event(
@@ -50,14 +51,9 @@ impl SimpleState for MyState {
                 return Trans::Quit;
             }
 
-            // Listen to any key events
-            if let Some(event) = get_key(&event) {
-               // info!("handling key event: {:?}", event);
+            if is_key_down(&event, VirtualKeyCode::P) {
+                return Trans::Push(Box::new(PausedState));
             }
-
-            // If you're looking for a more sophisticated event handling solution,
-            // including key bindings and gamepad support, please have a look at
-            // https://book.amethyst.rs/stable/pong-tutorial/pong-tutorial-03.html#capturing-user-input
         }
 
         // Keep going
@@ -195,4 +191,37 @@ fn init_sprites(world: &mut World, sprites: &HashMap<String, SpriteRender>, dime
         .with(transform)
         .build();
 
+}
+
+
+pub struct PausedState;
+impl SimpleState for PausedState {
+
+    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        let world = data.world;
+        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
+
+        let storage = world.read_storage::<BirbGravity>();
+    }
+
+    fn handle_event(
+        &mut self,
+        mut _data: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+
+        if let StateEvent::Window(event) = &event {
+            // Check if the window should be closed
+            if is_key_down(&event, VirtualKeyCode::Space) {
+                return Trans::Pop;
+            }
+        }
+
+        // Keep going
+        Trans::None
+    }
+
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        Trans::None
+    }
 }

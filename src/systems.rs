@@ -53,9 +53,9 @@ impl<'a> System<'a> for BirbGravity {
         for (mut transform, mut object) in (&mut transforms, &mut scrolling).join() {
 
             if input.action_is_down("flap").expect("No action") {
-                object.vertical_speed = 500.0;
+                object.vertical_speed = 600.0;
             }
-            object.vertical_speed -= 1000.0 * time.delta_seconds();
+            object.vertical_speed -= 1500.0 * time.delta_seconds();
             transform.prepend_translation_y(object.vertical_speed * time.delta_seconds());
         }
     }

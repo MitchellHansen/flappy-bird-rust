@@ -28,7 +28,7 @@ fn main() -> amethyst::Result<()> {
     //amethyst::start_logger(Default::default());
 
     // Gets the root directory of the application
-    let mut app_root = PathBuf::from_str("/home/mrh/source/amethyst-starter-2d/")?;
+    let mut app_root = PathBuf::from_str("/home/mrh/source/flappy-bird-rust/")?;
 
     // join on the resources path, and the config.
     let resources = app_root.join("resources");
