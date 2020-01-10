@@ -30,57 +30,11 @@ impl<'a, 'b> PlayState<'a, 'b> {
         let sprites = world.try_fetch_mut::<HashMap<String, SpriteRender>>().unwrap().clone();
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
 
-
-        let background_sprite = sprites.get("day-background").unwrap().clone();
-
-        let background_object = TiledScroller {
-            speed: -75.0,
-            position: 1.0,
-            width: 144.0 * 3.0,
-            height: 256.0 * 3.0,
-        };
+        let birb_sprite = sprites
+            .get("floppy").unwrap();
 
         let mut transform = Transform::default();
         transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
-        transform.set_translation_xyz(background_object.width/2.0, background_object.height/2.0, 0.0);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(background_sprite.clone()) // Sprite Render
-            .with(background_object.clone())
-            .with(transform.clone())
-            .build());
-
-        transform.set_translation_xyz(3.0*144.0/2.0*3.0, 3.0*256.0/2.0, 0.0);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(background_sprite.clone()) // Sprite Render
-            .with(TiledScroller {
-                speed: -75.0,
-                position: 2.0,
-                width: 0.0,
-                height: 0.0
-            })
-            .with(transform.clone())
-            .build());
-
-        let ground_sprite = sprites.get("ground").unwrap();
-        transform.set_translation_xyz(3.0*168.0/2.0*3.0, 3.0*56.0/2.0, 0.1);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(ground_sprite.clone()) // Sprite Render
-            .with(TiledScroller {
-                speed: -100.0,
-                position: 2.0,
-                width: 0.0,
-                height: 0.0,
-            })
-            .with(transform.clone())
-            .build());
-
-        let birb_sprite = sprites.get("floppy").unwrap();
         transform.set_translation_xyz(dimensions.width()/2.0, dimensions.height()/2.0, 0.2);
 
         self.sprites.push(world
@@ -101,23 +55,12 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
 
         let world = data.world;
-
-        // Get the screen dimensions so we can initialize the camera and
-        // place our sprites correctly later. We'll clone this since we'll
-        // pass the world mutably to the following functions.
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
-
-
-        // Place the camera
-        /// function sets size of camera window
-
 
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
         let mut dispatcher_builder = DispatcherBuilder::new();
-        dispatcher_builder.add(ScrollScrollables, "scroll", &[]);
         dispatcher_builder.add(BirbGravity { fired: false }, "gravity", &[]);
 
-        // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
         dispatcher.setup(world);
 
@@ -129,7 +72,7 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
 
     fn handle_event(
         &mut self,
-        mut _data: StateData<'_, GameData<'_, '_>>,
+        mut data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
 
@@ -140,6 +83,11 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
             }
 
             if is_key_down(&event, VirtualKeyCode::P) {
+                let world = data.world;
+                for i in &self.sprites {
+                    world.delete_entity(*i);
+                }
+                self.sprites.clear();
                 return Trans::Pop;
             }
         }
@@ -158,9 +106,112 @@ impl<'a, 'b> SimpleState for PlayState<'a, 'b> {
 #[derive(Default)]
 pub struct SplashState {
     sprites: Vec<Entity>,
+    persistent_sprites: Vec<Entity>,
 }
 
 impl SplashState {
+
+    fn init_sprites(&mut self, world: &mut World) {
+        let sprites = world.try_fetch_mut::<HashMap<String, SpriteRender>>().unwrap().clone();
+
+        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
+
+        let flappy_bird_text_sprite = sprites
+            .get("flappy-bird-text").unwrap().clone();
+        let play_button_sprite = sprites
+            .get("play-button").unwrap().clone();
+        let leaderboard_button_sprite = sprites
+            .get("leaderboard-button").unwrap().clone();
+        let background_sprite = sprites
+            .get("day-background").unwrap().clone();
+        let night_background_sprite = sprites
+            .get("night-background").unwrap().clone();
+        let ground_sprite = sprites
+            .get("ground").unwrap().clone();
+
+
+        let mut transform = Transform::default();
+        transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
+        transform.set_translation_xyz(3.0*144.0/2.0, 3.0*256.0/2.0, 0.0);
+
+        self.persistent_sprites.push(world
+            .create_entity()
+            .with(background_sprite.clone()) // Sprite Render
+            .with(TiledScroller {
+                speed: -75.0,
+                position: 1.0,
+                width: 144.0 * 3.0,
+                height: 256.0 * 3.0,
+            })
+            .with(transform.clone())
+            .build());
+
+        transform.set_translation_xyz(3.0*144.0/2.0*3.0, 3.0*256.0/2.0, 0.0);
+
+        self.persistent_sprites.push(world
+            .create_entity()
+            .with(background_sprite.clone()) // Sprite Render
+            .with(TiledScroller {
+                speed: -75.0,
+                position: 2.0,
+                width: 144.0 * 3.0,
+                height: 256.0 * 3.0,
+            })
+            .with(transform.clone())
+            .build());
+
+        transform.set_translation_xyz(3.0*168.0/2.0, 3.0*56.0/2.0, 0.1);
+
+        self.persistent_sprites.push(world
+            .create_entity()
+            .with(ground_sprite.clone()) // Sprite Render
+            .with(TiledScroller {
+                speed: -100.0,
+                position: 2.0,
+                width: 168.0 * 3.0,
+                height: 56.0 * 3.0,
+            })
+            .with(transform.clone())
+            .build());
+
+        transform.set_translation_xyz(3.0*168.0/2.0*3.0, 3.0*56.0/2.0, 0.1);
+
+        self.persistent_sprites.push(world
+            .create_entity()
+            .with(ground_sprite.clone()) // Sprite Render
+            .with(TiledScroller {
+                speed: -100.0,
+                position: 2.0,
+                width: 168.0 * 3.0,
+                height: 56.0 * 3.0,
+            })
+            .with(transform.clone())
+            .build());
+
+        transform.set_translation_xyz(dimensions.width()*0.5, dimensions.height()*0.8, 0.2);
+
+        self.sprites.push(world
+            .create_entity()
+            .with(flappy_bird_text_sprite.clone())
+            .with(transform.clone())
+            .build());
+
+        transform.set_translation_xyz(dimensions.width()*0.25, dimensions.height()*0.4, 0.2);
+
+        self.sprites.push(world
+            .create_entity()
+            .with(play_button_sprite.clone())
+            .with(transform.clone())
+            .build());
+
+        transform.set_translation_xyz(dimensions.width()*0.75, dimensions.height()*0.4, 0.2);
+
+        self.sprites.push(world
+            .create_entity()
+            .with(leaderboard_button_sprite.clone())
+            .with(transform.clone())
+            .build());
+    }
 
     fn init_camera(world: &mut World) {
 
@@ -176,93 +227,6 @@ impl SplashState {
             .with(Camera::standard_2d(dimensions.width(), dimensions.height()))
             .with(transform)
             .build();
-    }
-
-    fn init_sprites(&mut self, world: &mut World) {
-        let sprites = world.try_fetch_mut::<HashMap<String, SpriteRender>>().unwrap().clone();
-
-        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
-
-        let flappy_bird_text_sprite = sprites
-            .get("flappy-bird-text").unwrap().clone();
-        let play_button_sprite = sprites
-            .get("play-button").unwrap().clone();
-        let leaderboard_button_sprite = sprites
-            .get("leaderboard-button").unwrap().clone();
-        let background_sprite = sprites
-            .get("day-background").unwrap().clone();
-        let ground_sprite = sprites
-            .get("ground").unwrap().clone();
-
-        let background_object = TiledScroller {
-            speed: -75.0,
-            position: 1.0,
-            width: 144.0 * 3.0,
-            height: 256.0 * 3.0,
-        };
-
-        let mut transform = Transform::default();
-        transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
-        transform.set_translation_xyz(dimensions.width()/2.0 - 100.0, dimensions.height() - 100.0, 0.1);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(background_sprite.clone()) // Sprite Render
-            .with(background_object.clone())
-            .with(transform.clone())
-            .build());
-
-        transform.set_translation_xyz(3.0*144.0/2.0*3.0, 3.0*256.0/2.0, 0.0);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(background_sprite.clone()) // Sprite Render
-            .with(TiledScroller {
-                speed: -75.0,
-                position: 2.0,
-                width: 0.0,
-                height: 0.0
-            })
-            .with(transform.clone())
-            .build());
-
-        transform.set_translation_xyz(3.0*168.0/2.0*3.0, 3.0*56.0/2.0, 0.1);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(ground_sprite.clone()) // Sprite Render
-            .with(TiledScroller {
-                speed: -100.0,
-                position: 2.0,
-                width: 0.0,
-                height: 0.0,
-            })
-            .with(transform.clone())
-            .build());
-
-        transform.set_translation_xyz(background_object.width/2.0, background_object.height/2.0, 0.0);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(flappy_bird_text_sprite.clone())
-            .with(transform.clone())
-            .build());
-
-        transform.set_translation_xyz(100.0/2.0, 100.0/2.0, 0.1);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(play_button_sprite.clone())
-            .with(transform.clone())
-            .build());
-
-        transform.set_translation_xyz(500.0/2.0, 100.0/2.0, 0.1);
-
-        self.sprites.push(world
-            .create_entity()
-            .with(leaderboard_button_sprite.clone())
-            .with(transform.clone())
-            .build());
     }
 
     fn load_sprites(world: &mut World) -> HashMap<String, SpriteRender> {
@@ -354,8 +318,6 @@ impl SimpleState for SplashState {
                 return Trans::Push(Box::new(ReadyState::default()));
             }
         }
-
-        // Keep going
         Trans::None
     }
 
@@ -370,7 +332,8 @@ pub struct ReadyState {
 }
 
 impl ReadyState {
-    fn init_sprites(&mut self, world: &mut World, dimensions: &ScreenDimensions) {
+
+    fn init_sprites(&mut self, world: &mut World) {
 
         let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
         let sprites = world.try_fetch_mut::<HashMap<String, SpriteRender>>().unwrap().clone();
@@ -383,7 +346,8 @@ impl ReadyState {
 
         let mut transform = Transform::default();
         transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
-        transform.set_translation_xyz(dimensions.width()/2.0 - 100.0, dimensions.height() - 100.0, 0.1);
+
+        transform.set_translation_xyz(dimensions.width()*0.5, dimensions.height()*0.8, 0.2);
 
         self.sprites.push(world
             .create_entity()
@@ -391,7 +355,7 @@ impl ReadyState {
             .with(transform.clone())
             .build());
 
-        transform.set_translation_xyz(500.0/2.0, 500.0/2.0, 0.1);
+        transform.set_translation_xyz(dimensions.width()*0.5, dimensions.height()*0.5, 0.2);
 
         self.sprites.push(world
             .create_entity()
@@ -402,11 +366,9 @@ impl ReadyState {
 }
 impl SimpleState for ReadyState {
 
-
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
-
-
+        ReadyState::init_sprites(self, world);
     }
 
     fn handle_event(
@@ -432,8 +394,6 @@ impl SimpleState for ReadyState {
                 return Trans::Push(Box::new(PlayState::default()));
             }
         }
-
-        // Keep going
         Trans::None
     }
 

@@ -35,15 +35,17 @@ impl<'a> System<'a> for ScrollScrollables {
     fn run(&mut self, (mut transforms, mut scrolling, time): Self::SystemData) {
         for (mut transform, mut object) in (&mut transforms, &mut scrolling).join() {
 
+
             // I need to tile it by it's width
             transform.prepend_translation_x(object.speed * time.delta_seconds());
-            if transform.translation().x+144.0*1.5 < 0.0 {
-                transform.set_translation_x(144.0*3.0/2.0*3.0);
+            if transform.translation().x+object.width/2.0 < 0.0 {
+                transform.set_translation_x(object.width/2.0*3.0);
             }
         }
     }
 }
 
+#[derive(Default)]
 pub struct BirbGravity {
     pub fired: bool,
 }
@@ -61,7 +63,6 @@ impl<'a> System<'a> for BirbGravity {
         for (mut transform, mut object) in (&mut transforms, &mut scrolling).join() {
 
             //match game.current_state
-
             if input.action_is_down("flap").expect("No action") {
                 object.vertical_speed = 600.0;
             }

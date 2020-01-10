@@ -42,6 +42,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
        // .with(System, "system", &["required_things"])
+         .with(ScrollScrollables, "scroll", &[])
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
