@@ -25,7 +25,7 @@ use std::str::FromStr;
 
 fn main() -> amethyst::Result<()> {
 
-    amethyst::start_logger(Default::default());
+  //  amethyst::start_logger(Default::default());
 
     // Gets the root directory of the application
     let mut app_root = PathBuf::from_str("/home/mrh/source/flappy-bird-rust/")?;

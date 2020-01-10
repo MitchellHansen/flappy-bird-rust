@@ -132,7 +132,7 @@ impl SplashState {
 
         let mut transform = Transform::default();
         transform.set_scale(Vector3::new(3.0, 3.0, 3.0));
-        transform.set_translation_xyz(3.0*144.0/2.0, 3.0*256.0/2.0, 0.0);
+        transform.set_translation_xyz(3.0*143.0/2.0, 3.0*256.0/2.0, 0.0);
 
         self.persistent_sprites.push(world
             .create_entity()
@@ -140,13 +140,13 @@ impl SplashState {
             .with(TiledScroller {
                 speed: -75.0,
                 position: 1.0,
-                width: 144.0 * 3.0,
+                width: 143.0 * 3.0,
                 height: 256.0 * 3.0,
             })
             .with(transform.clone())
             .build());
 
-        transform.set_translation_xyz(3.0*144.0/2.0*3.0, 3.0*256.0/2.0, 0.0);
+        transform.set_translation_xyz(3.0*143.0/2.0*3.0, 3.0*256.0/2.0, 0.0);
 
         self.persistent_sprites.push(world
             .create_entity()
@@ -154,7 +154,7 @@ impl SplashState {
             .with(TiledScroller {
                 speed: -75.0,
                 position: 2.0,
-                width: 144.0 * 3.0,
+                width: 143.0 * 3.0,
                 height: 256.0 * 3.0,
             })
             .with(transform.clone())
@@ -168,7 +168,7 @@ impl SplashState {
             .with(TiledScroller {
                 speed: -100.0,
                 position: 2.0,
-                width: 168.0 * 3.0,
+                width: 167.0 * 3.0,
                 height: 56.0 * 3.0,
             })
             .with(transform.clone())
@@ -182,7 +182,7 @@ impl SplashState {
             .with(TiledScroller {
                 speed: -100.0,
                 position: 2.0,
-                width: 168.0 * 3.0,
+                width: 167.0 * 3.0,
                 height: 56.0 * 3.0,
             })
             .with(transform.clone())
