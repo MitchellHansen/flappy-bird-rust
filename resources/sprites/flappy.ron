@@ -37,6 +37,36 @@
             y: 490,
             width: 17,
             height: 13,
-        )
+        ),
+        ( // Tap Tap Dialogue
+            x: 292,
+            y: 91,
+            width: 56,
+            height: 48,
+        ),
+        ( // Play Button
+            x: 354,
+            y: 118,
+            width: 50,
+            height: 28,
+        ),
+        ( // Leaderboard button
+            x: 414,
+            y: 118,
+            width: 42,
+            height: 28,
+        ),
+        ( // Get Ready
+            x: 295,
+            y: 59,
+            width: 91,
+            height: 24,
+        ),
+        ( // Flappy Bird Text
+            x: 351,
+            y: 91,
+            width: 88,
+            height: 25,
+        ),
     ]
 )

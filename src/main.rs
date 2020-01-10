@@ -51,8 +51,9 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?;
 
+
     // Creates the app with the startup state and bound game data
-    let mut game = Application::new(resources, state::PlayState::default(), game_data)?;
+    let mut game = Application::new(resources, state::SplashState::default(), game_data)?;
     game.run();
 
     Ok(())
