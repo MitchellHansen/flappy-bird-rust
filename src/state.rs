@@ -371,6 +371,10 @@ impl SimpleState for ReadyState {
         ReadyState::init_sprites(self, world);
     }
 
+    fn on_resume(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+
+    }
+
     fn handle_event(
         &mut self,
         mut data: StateData<'_, GameData<'_, '_>>,

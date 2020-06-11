@@ -21,7 +21,6 @@ Pausable systems
 https://book.amethyst.rs/stable/controlling_system_execution/pausable_systems.html
 
 
-
 */
 
 // This system iterates all the objects with transform (and falling object) component
@@ -35,8 +34,6 @@ impl<'a> System<'a> for ScrollScrollables {
     fn run(&mut self, (mut transforms, mut scrolling, time): Self::SystemData) {
         for (mut transform, mut object) in (&mut transforms, &mut scrolling).join() {
 
-
-            // I need to tile it by it's width
             transform.prepend_translation_x(object.speed * time.delta_seconds());
             if transform.translation().x+object.width/2.0 < 0.0 {
                 transform.set_translation_x(object.width/2.0*3.0);

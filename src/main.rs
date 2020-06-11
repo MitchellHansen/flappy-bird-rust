@@ -25,7 +25,7 @@ use std::str::FromStr;
 
 fn main() -> amethyst::Result<()> {
 
-  //  amethyst::start_logger(Default::default());
+    amethyst::start_logger(Default::default());
 
     // Gets the root directory of the application
     let mut app_root = PathBuf::from_str("/home/mrh/source/flappy-bird-rust/")?;
@@ -46,7 +46,7 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
-                    RenderToWindow::from_config_path(display_config)
+                    RenderToWindow::from_config_path(display_config).unwrap()
                         .with_clear([0.34, 0.36, 0.52, 1.0]),
                 )
                 .with_plugin(RenderFlat2D::default()),
