@@ -19,8 +19,6 @@ pub struct ScrollScrollables;
 /*
 Pausable systems
 https://book.amethyst.rs/stable/controlling_system_execution/pausable_systems.html
-
-
 */
 
 // This system iterates all the objects with transform (and falling object) component

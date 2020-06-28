@@ -1,6 +1,9 @@
 mod components;
 mod systems;
-mod state;
+mod ready_state;
+mod play_state;
+mod splash_state;
+
 use amethyst::{
     input::{InputBundle, StringBindings},
     core::transform::TransformBundle,
@@ -22,6 +25,7 @@ use crate::components::*;
 use crate::systems::*;
 use std::path::PathBuf;
 use std::str::FromStr;
+use crate::splash_state::SplashState;
 
 fn main() -> amethyst::Result<()> {
 
@@ -54,7 +58,7 @@ fn main() -> amethyst::Result<()> {
 
 
     // Creates the app with the startup state and bound game data
-    let mut game = Application::new(resources, state::SplashState::default(), game_data)?;
+    let mut game = Application::new(resources, SplashState::default(), game_data)?;
     game.run();
 
     Ok(())
